@@ -1,0 +1,60 @@
+hostname HUB
+!
+no ip domain lookup
+!
+diagnostic bootup level minimal
+memory free low-watermark processor 71477
+!
+!         
+spanning-tree extend system-id
+!
+!
+redundancy
+!
+!
+!
+!
+crypto ikev2 keyring IKEV2_KEY
+ peer EMPRESA
+  address 0.0.0.0 0.0.0.0
+  pre-shared-key LABGRE
+ !
+!
+!
+crypto ikev2 profile IKEV2_PROFILE
+ match identity remote address 192.168.0.0 255.255.255.0 
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local IKEV2_KEY
+ dpd 10 2 periodic
+!
+crypto ipsec transform-set TFS esp-aes 256 esp-sha384-hmac 
+ mode tunnel
+!
+crypto ipsec profile IPSEC_PROFILE
+ set transform-set TFS 
+ set ikev2-profile IKEV2_PROFILE
+!
+interface Tunnel100
+ ip address 172.16.12.1 255.255.255.252
+ tunnel source 192.168.0.2
+ tunnel destination 192.168.0.6
+ tunnel protection ipsec profile IPSEC_PROFILE
+!
+interface Tunnel200
+ ip address 172.16.13.1 255.255.255.252
+ tunnel source 192.168.0.2
+ tunnel destination 192.168.0.10
+ tunnel protection ipsec profile IPSEC_PROFILE
+!
+interface GigabitEthernet3
+ description PE-1
+ ip address 192.168.0.2 255.255.255.252
+ negotiation auto
+ no shutdown
+!
+router eigrp 100
+ network 172.16.0.0
+!
+ip route 0.0.0.0 0.0.0.0 192.168.0.1
+!

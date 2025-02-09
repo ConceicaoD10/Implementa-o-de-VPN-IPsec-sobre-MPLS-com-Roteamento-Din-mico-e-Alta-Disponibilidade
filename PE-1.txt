@@ -1,0 +1,85 @@
+hostname PE-1
+!
+!
+vrf definition CLIENTE
+ rd 65000:1
+ vpn id 65000:1
+ !
+ address-family ipv4
+  route-target export 65000:1
+  route-target import 65000:1
+ exit-address-family
+!
+no ip domain lookup
+ipv6 unicast-routing
+ipv6 cef
+mpls label protocol ldp
+!
+interface Loopback0
+ ip address 10.255.255.1 255.255.255.255
+ ipv6 enable
+ ospfv3 1 ipv4 area 0.0.0.0
+!
+interface Ethernet0/1
+ description P1
+ ip address 10.0.0.1 255.255.255.252
+ ipv6 enable
+ mpls ip
+ ospfv3 network point-to-point
+ ospfv3 1 ipv4 area 0.0.0.0
+ no shutdown
+!
+interface Ethernet0/2
+ description P2
+ ip address 10.0.0.5 255.255.255.252
+ ipv6 enable
+ mpls ip
+ ospfv3 network point-to-point
+ ospfv3 1 ipv4 area 0.0.0.0
+ no shutdown
+!
+interface Ethernet0/3
+ description HUB
+ vrf forwarding CLIENTE
+ ip address 192.168.0.1 255.255.255.252
+ no shutdown
+!
+router ospfv3 1
+ router-id 10.255.255.1
+ !
+ address-family ipv4 unicast
+ exit-address-family
+!
+router bgp 65000
+ bgp log-neighbor-changes
+ neighbor IBGP peer-group
+ neighbor IBGP remote-as 65000
+ neighbor IBGP update-source Loopback0
+ neighbor 10.255.255.2 peer-group IBGP
+ neighbor 10.255.255.3 peer-group IBGP
+ !
+ address-family ipv4
+  neighbor IBGP send-community both
+  neighbor IBGP next-hop-self
+  neighbor 10.255.255.2 activate
+  neighbor 10.255.255.3 activate
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor IBGP send-community both
+  neighbor IBGP next-hop-self
+  neighbor 10.255.255.2 activate
+  neighbor 10.255.255.3 activate
+ exit-address-family
+ !
+ address-family ipv4 vrf CLIENTE
+  redistribute connected route-map RM-CLIENTE
+ exit-address-family
+!         
+ip prefix-list CLIENTE seq 5 permit 192.168.0.0/24
+!
+route-map RM-CLIENTE permit 10
+ match ip address prefix-list PL-CLIENTE
+!
+mpls ldp router-id Loopback0 force
+!

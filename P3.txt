@@ -1,0 +1,47 @@
+hostname P3
+!
+no ip domain lookup
+ipv6 unicast-routing
+ipv6 cef
+mpls label protocol ldp
+!
+interface Loopback0
+ ip address 10.255.255.13 255.255.255.255
+ ipv6 enable
+ ospfv3 1 ipv4 area 0.0.0.0
+!
+interface Ethernet0/0
+ description P4
+ ip address 10.0.0.21 255.255.255.252
+ ipv6 enable
+ mpls ip
+ ospfv3 network point-to-point
+ ospfv3 1 ipv4 area 0.0.0.0
+ no shutdown
+!
+interface Ethernet0/1
+ description PE-2
+ ip address 10.0.0.25 255.255.255.252
+ ipv6 enable
+ mpls ip
+ ospfv3 network point-to-point
+ ospfv3 1 ipv4 area 0.0.0.0
+ no shutdown
+!
+interface Ethernet0/2
+ description P1
+ ip address 10.0.0.14 255.255.255.252
+ ipv6 enable
+ mpls ip
+ ospfv3 network point-to-point
+ ospfv3 1 ipv4 area 0.0.0.0
+ no shutdown
+!
+router ospfv3 1
+ router-id 10.255.255.13
+ !
+ address-family ipv4 unicast
+ exit-address-family
+!
+mpls ldp router-id Loopback0 force
+!
