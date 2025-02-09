@@ -23,7 +23,7 @@ Este laboratório simula uma infraestrutura de rede corporativa combinando VPN I
  🔹 Backbone MPLS (PEs e Ps)
 - MPLS e LDP para transporte eficiente de pacotes com labels.  
 - OSPFv3 para roteamento dinâmico dentro da rede MPLS.  
-- VRF (Virtual Routing and Forwarding)** para isolamento de tráfego do cliente "CLIENTE".  
+- VRF (Virtual Routing and Forwarding) para isolamento de tráfego do cliente CLIENTE.  
 - BGP para distribuição de rotas VPN entre os PEs.  
 
 🔹 Outras Configurações Importantes 
